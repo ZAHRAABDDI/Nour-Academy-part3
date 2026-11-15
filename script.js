@@ -1,3 +1,4 @@
+
 import { eleves,groupes } from "./data.js";
 
 const listeEleve = document.getElementById("liste-eleves")
@@ -7,6 +8,13 @@ const nbAlertes = document.getElementById("bilan-alertes");
 
 // AJOUT : récupérer le total des absences
 const bilanAbsences = document.getElementById("bilan-absences");
+
+//  la moyenne générale de tout les eleves
+const bilanMoyenne = document.getElementById("bilan-moyenne");
+
+// AJOUT : récupérer la liste des parents à appeler
+const parentsAppeler = document.getElementById("liste-parents");
+const aucuneAlerte = document.getElementById("aucune-alerte");
 
 const formulaire = document.getElementById("form-eleve");
 const prenom = document.getElementById("prenom");
@@ -217,9 +225,66 @@ function calculerTotalAbsences() {
 calculerTotalAbsences();
 
 
+// AJOUT : calculer la moyenne générale de tous les élèves
+function calculerMoyenneGenerale() {
+  let somme = 0;
+  let nombreNotes = 0;
+
+  // Parcourir les élèves et leurs notes
+  eleves.forEach(eleve => {
+    eleve.notes.forEach(note => {
+      somme += note;
+      nombreNotes++;
+    });
+  });
+
+  // Calculer la moyenne générale
+  const moyenne = nombreNotes > 0 ? somme / nombreNotes : 0;
+
+  // Afficher la moyenne
+  bilanMoyenne.textContent = moyenne.toFixed(1).replace(".", ",");
+}
+
+
+// AJOUT : afficher les parents à appeler
+function afficherParentsAppeler() {
+
+  // Vider la liste avant de la remplir
+  parentsAppeler.replaceChildren();
+
+  // Récupérer les élèves ayant au moins 3 absences
+  const elevesEnAlerte = eleves.filter(eleve => eleve.absences >= 3);
+
+  // Ajouter les parents dans la liste
+  elevesEnAlerte.forEach(eleve => {
+    const li = document.createElement("li");
+
+    li.classList.add(
+      "rounded-xl",
+      "bg-card",
+      "px-3",
+      "py-2",
+      "ring-1",
+      "ring-line"
+    );
+
+    li.textContent = `${eleve.prenom} ${eleve.nom} — ${eleve.telephoneParent}`;
+
+    parentsAppeler.appendChild(li);
+  });
+
+  // Afficher le message si aucun élève n'est en alerte
+  aucuneAlerte.hidden = elevesEnAlerte.length > 0;
+}
+
+// AJOUT : affichage initial des indicateurs
+calculerMoyenneGenerale();
+afficherParentsAppeler();
+
+
 filtreGroupe.append(...options);
 
-// AJOUT : remplir le select du formulaire US4.
+// AJOUT US4 : remplir le select du formulaire.
 // Le filtre des groupes et le champ groupe sont différents.
 groupes.forEach(g => {
   const option = document.createElement("option");
@@ -271,7 +336,6 @@ listeEleve.addEventListener("click", (event) => {
     eleve.absences++;
 
     // CORRECTION : remplacer seulement la ligne concernée.
-    // Avant : filtrerEleves() recréait toute la liste.
     const ligne = btnAbsent.closest("li");
     ligne.replaceWith(creerDOM(eleve));
 
@@ -279,6 +343,9 @@ listeEleve.addEventListener("click", (event) => {
 
     // AJOUT : actualiser le total après chaque absence
     calculerTotalAbsences();
+
+    // AJOUT : actualiser les parents à appeler
+    afficherParentsAppeler();
 
     return;
   }
@@ -309,9 +376,9 @@ listeEleve.addEventListener("click", (event) => {
     // Ajouter la note dans le tableau
     eleve.notes.push(note);
 
-    // Actualiser l'affichage
+    // AJOUT : actualiser la moyenne générale après chaque note
+    calculerMoyenneGenerale();
 
-    // CORRECTION : ne remplacer que la ligne modifiée.
     // Avant : afficherEleves() supprimait les filtres actifs.
     ligne.replaceWith(creerDOM(eleve));
   }
@@ -452,27 +519,33 @@ formulaire.addEventListener("submit", (event) => {
   // AJOUT : enregistrer l'élève dans le tableau.
   eleves.push(nouvelEleve);
 
-  // AJOUT : actualiser la liste et conserver les filtres.
-  filtrerEleves();
+  // AJOUT : actualiser les indicateurs après l'ajout
+  calculerMoyenneGenerale();
+  afficherParentsAppeler();
+  calculerAlertes();
+  calculerTotalAbsences();
 
-  // AJOUT : vider le formulaire après l'ajout.
-  formulaire.reset();
+//   // AJOUT : actualiser la liste et conserver les filtres.
+//   filtrerEleves();
 
-  // AJOUT : supprimer les anciens états de validation.
-  Object.values(champs).forEach(champ => {
-    champ.parentElement.classList.remove("valide", "erreur");
-    champ.classList.remove("border-green-500", "border-red-500");
-    champ.removeAttribute("aria-invalid");
+//   // AJOUT : vider le formulaire après l'ajout.
+//   formulaire.reset();
 
-    const message = document.getElementById(`${champ.id}-msg`);
-    message.textContent = "";
-  });
+//   // AJOUT : supprimer les anciens états de validation.
+//   Object.values(champs).forEach(champ => {
+//     champ.parentElement.classList.remove("valide", "erreur");
+//     champ.classList.remove("border-green-500", "border-red-500");
+//     champ.removeAttribute("aria-invalid");
 
-  // AJOUT : remettre la jauge du code à zéro.
-  const jauge = document.getElementById("code-force");
-  if (jauge) jauge.value = 0;
+//     const message = document.getElementById(`${champ.id}-msg`);
+//     message.textContent = "";
+//   });
 
-  // AJOUT : afficher le message de succès.
-  formSucces.textContent = "Élève ajouté avec succès.";
-  formSucces.hidden = false;
-});
+//   // AJOUT : remettre la jauge du code à zéro.
+//   const jauge = document.getElementById("code-force");
+//   if (jauge) jauge.value = 0;
+
+//   // AJOUT : afficher le message de succès.
+//   formSucces.textContent = "Élève ajouté avec succès.";
+//   formSucces.hidden = false;
+// });
