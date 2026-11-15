@@ -525,27 +525,27 @@ formulaire.addEventListener("submit", (event) => {
   calculerAlertes();
   calculerTotalAbsences();
 
-//   // AJOUT : actualiser la liste et conserver les filtres.
-//   filtrerEleves();
+  // AJOUT : actualiser la liste et conserver les filtres.
+  filtrerEleves();
 
-//   // AJOUT : vider le formulaire après l'ajout.
-//   formulaire.reset();
+  // AJOUT : vider le formulaire après l'ajout.
+  formulaire.reset();
 
-//   // AJOUT : supprimer les anciens états de validation.
-//   Object.values(champs).forEach(champ => {
-//     champ.parentElement.classList.remove("valide", "erreur");
-//     champ.classList.remove("border-green-500", "border-red-500");
-//     champ.removeAttribute("aria-invalid");
+  // AJOUT : supprimer les anciens états de validation.
+  Object.values(champs).forEach(champ => {
+    champ.parentElement.classList.remove("valide", "erreur");
+    champ.classList.remove("border-green-500", "border-red-500");
+    champ.removeAttribute("aria-invalid");
 
-//     const message = document.getElementById(`${champ.id}-msg`);
-//     message.textContent = "";
-//   });
+    const message = document.getElementById(`${champ.id}-msg`);
+    message.textContent = "";
+  });
 
-//   // AJOUT : remettre la jauge du code à zéro.
-//   const jauge = document.getElementById("code-force");
-//   if (jauge) jauge.value = 0;
+  // AJOUT : remettre la jauge du code à zéro.
+  const jauge = document.getElementById("code-force");
+  if (jauge) jauge.value = 0;
 
-//   // AJOUT : afficher le message de succès.
-//   formSucces.textContent = "Élève ajouté avec succès.";
-//   formSucces.hidden = false;
-// });
+  // AJOUT : afficher le message de succès.
+  formSucces.textContent = "Élève ajouté avec succès.";
+  formSucces.hidden = false;
+});
